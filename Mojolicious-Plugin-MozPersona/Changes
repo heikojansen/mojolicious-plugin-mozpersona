@@ -1,0 +1,9 @@
+
+{{$NEXT}}
+
+0.01      2013-01-23 23:13:21 Europe/Berlin
+	Only changed the version number to have the dist
+		indexed by CPAN
+
+0.01_01   2013-01-23 21:28:37 Europe/Berlin
+	Initial release
