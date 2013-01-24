@@ -1,5 +1,7 @@
 
 {{$NEXT}}
+	- Minor doc changes
+	- Moved to github
 
 0.01      2013-01-23 23:13:21 Europe/Berlin
 	Only changed the version number to have the dist
