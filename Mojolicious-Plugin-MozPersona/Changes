@@ -1,5 +1,7 @@
 
 {{$NEXT}}
+	- Forgot to explicitly mention Mojolicious as dependency
+		as CPAN testers reminded me
 
 0.02      2013-01-24 22:59:34 Europe/Berlin
 	- Minor doc changes
