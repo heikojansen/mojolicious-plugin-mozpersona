@@ -120,9 +120,9 @@ sub signin {
     my $result = '';
 
     eval {
-        $persona_response = $self->ua->post_form(
+        $persona_response = $self->ua->post(
            $self->stash('_persona_service')
-           => {
+           => form => {
                 assertion => $self->param('assertion'),
                 audience  => $self->stash('_persona_audience'), 
            }
