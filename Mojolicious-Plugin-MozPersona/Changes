@@ -1,5 +1,7 @@
 
 {{$NEXT}}
+
+0.04      2014-01-02 19:34:05 Europe/Berlin
 	- Fix for newer Mojo: use UA->post($url, form => {...})
 		instead of the now deprecated UA->post_form
 		Patch by moritz - thanks!
