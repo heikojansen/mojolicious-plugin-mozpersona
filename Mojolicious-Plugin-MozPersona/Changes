@@ -1,5 +1,13 @@
 
 {{$NEXT}}
+	- Fix for newer Mojo: use UA->post($url, form => {...})
+		instead of the now deprecated UA->post_form
+		Patch by moritz - thanks!
+	- Use default URL of jQuery library which is part of the
+		Mojolicious distribution
+		Patch by moritz - thanks!
+
+0.03      2013-01-27 18:36:07 Europe/Berlin
 	- Forgot to explicitly mention Mojolicious as dependency
 		as CPAN testers reminded me
 
