@@ -15,7 +15,7 @@ use warnings;
 Mojolicious::Plugin::MozPersona - Minimalistic integration of Mozillas 
 "Persona" authentication system in Mojolicious apps.
 
-B<BEWARE: THIS IS AN ALPHA RELEASE!> - It is quite possible that there will
+B<BEWARE: THIS IS AN EARLY RELEASE!> - It is quite possible that there will
 be incompatible changes before the API and the functionality of this 
 plugin are declared stable. Use at your own risk.
 On the other hand that also means that now is the right time to tell me
@@ -162,8 +162,39 @@ This option is deactivated (set to C<0>) by default.
 
 =item jquery
 
-Include the jQuery JavaScript Library that is part of the Mojolicious distribution
-by inserting an appropriate C<E<lt>script src="/mojo/jquery/jquery.js"E<gt>> element.
+Include the jQuery JavaScript library. The exact effect of activating this option
+depends on the value provided:
+
+=over 4
+
+=item C<bundled>
+
+If the option is set to C<bundled>, the jQuery file that is part of the Mojolicious 
+distribution is used by inserting a C<E<lt>script src="/mojo/jquery/jquery.js"E<gt>> 
+element.
+
+<B>Beware:<B> Since the jQuery library bundled with Mojolicious is intended for internal
+use only, this is not a recommended practice: consider using your own independent copy 
+or use the CDN.
+
+=item C<cdn>
+
+Include the latest version of the jQuery JavaScript library by
+utilizing the official content delivery network; inserts 
+C<E<lt>script src="http://code.jquery.com/jquery-latest.min.js"E<gt>>.
+
+As of now, the latest version from the 1.x line of development is available at that
+URL. To minimize the risk of future incompatibilities please consider using your own 
+independent copy (and set this option to C<false>).
+
+=back
+
+Prior to release 0.05 this option only took a boolean value and if that was C<true> the
+bundled jQuery file was used. That is the reason why in release 0.05 any C<true> value 
+besides C<bundled> and C<cdn> still has the same effect as if C<bundled> was passed in.
+
+A future release will change this option to be off by default and will consider any value
+besides the two shown above as C<false>. 
 
 =item persona
 
@@ -233,7 +264,7 @@ my %defaults = (
     signinPath     => '/_persona/signin',
     signoutId      => 'personaSignout',
     signoutPath    => '/_persona/signout',
-    autoHook       => { css => 0, jquery => 1, persona => 1, local => 1, uid => 1 },
+    autoHook       => { css => 0, jquery => 'bundled', persona => 1, local => 1, uid => 1 },
     localJsPath    => '/_persona/localjs',
     localJsTpl     => '_persona/local_js.txt.ep',
     personaJsPath  => 'https://login.persona.org/include.js',
@@ -309,8 +340,13 @@ sub register {
         if ( $conf{'autoHook'}->{'css'} ) {
             $head_block .= '<link href="/_persona/persona-buttons.css" media="screen" rel="stylesheet" type="text/css" />';
         }
-        if ( $conf{'autoHook'}->{'jquery'} ) {
-            $head_block .= '<script src="/mojo/jquery/jquery.js" type="text/javascript"></script>';
+        if ( my $jq = $conf{'autoHook'}->{'jquery'} ) {
+			if ( $jq eq 'cdn' ) {
+				$head_block .= '<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>';
+			}
+			elsif ( $jq eq 'bundled' or $jq ) {
+	            $head_block .= '<script src="/mojo/jquery/jquery.js" type="text/javascript"></script>';
+			}
         }
 
         my $end_block = '';
