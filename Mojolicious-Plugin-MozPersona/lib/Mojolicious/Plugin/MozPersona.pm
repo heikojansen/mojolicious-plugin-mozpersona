@@ -163,7 +163,7 @@ This option is deactivated (set to C<0>) by default.
 =item jquery
 
 Include the jQuery JavaScript Library that is part of the Mojolicious distribution
-by inserting an appropriate C<E<lt>script src="/js/jquery.js"E<gt>> element.
+by inserting an appropriate C<E<lt>script src="/mojo/jquery/jquery.js"E<gt>> element.
 
 =item persona
 
@@ -310,7 +310,7 @@ sub register {
             $head_block .= '<link href="/_persona/persona-buttons.css" media="screen" rel="stylesheet" type="text/css" />';
         }
         if ( $conf{'autoHook'}->{'jquery'} ) {
-            $head_block .= '<script src="/js/jquery.js" type="text/javascript"></script>';
+            $head_block .= '<script src="/mojo/jquery/jquery.js" type="text/javascript"></script>';
         }
 
         my $end_block = '';
