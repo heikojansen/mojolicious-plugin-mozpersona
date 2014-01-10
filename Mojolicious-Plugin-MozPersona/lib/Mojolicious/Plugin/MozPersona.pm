@@ -256,18 +256,18 @@ and only passes the other three params to the Persona IdP.
 =cut
 
 my %defaults = (
-    audience       => '',
-    siteName       => '',
-    service        => 'https://verifier.login.persona.org/verify',
-    namespace      => 'Mojolicious::Plugin::MozPersona::Controller',
-    signinId       => 'personaSignin',
-    signinPath     => '/_persona/signin',
-    signoutId      => 'personaSignout',
-    signoutPath    => '/_persona/signout',
-    autoHook       => { css => 0, jquery => 'bundled', persona => 1, local => 1, uid => 1 },
-    localJsPath    => '/_persona/localjs',
-    localJsTpl     => '_persona/local_js.txt.ep',
-    personaJsPath  => 'https://login.persona.org/include.js',
+	audience      => '',
+	siteName      => '',
+	service       => 'https://verifier.login.persona.org/verify',
+	namespace     => 'Mojolicious::Plugin::MozPersona::Controller',
+	signinId      => 'personaSignin',
+	signinPath    => '/_persona/signin',
+	signoutId     => 'personaSignout',
+	signoutPath   => '/_persona/signout',
+	autoHook      => { css => 0, jquery => 'bundled', persona => 1, local => 1, uid => 1 },
+	localJsPath   => '/_persona/localjs',
+	localJsTpl    => '_persona/local_js.txt.ep',
+	personaJsPath => 'https://login.persona.org/include.js',
 );
 
 =head1 METHODS
@@ -287,110 +287,109 @@ See DESCRIPTION above for an explanation of what happens here.
 =cut
 
 sub register {
-    my ( $self, $app ) = @_;
+	my ( $self, $app ) = @_;
 
-    my $defaultHooks = delete $defaults{'autoHook'};
-    my (%conf) = ( %defaults, %{ $_[2] || {} } );
+	my $defaultHooks = delete $defaults{'autoHook'};
+	my (%conf) = ( %defaults, %{ $_[2] || {} } );
 
-    $conf{'autoHook'} = {} unless exists $conf{'autoHook'};
-    foreach my $h ( keys %{$defaultHooks} ) {
-        if ( ref $conf{'autoHook'} && ! exists $conf{'autoHook'}->{$h} ) {
-            $conf{'autoHook'}->{$h} = $defaultHooks->{$h};
-        }
-    }
+	$conf{'autoHook'} = {} unless exists $conf{'autoHook'};
+	foreach my $h ( keys %{$defaultHooks} ) {
+		if ( ref $conf{'autoHook'} && !exists $conf{'autoHook'}->{$h} ) {
+			$conf{'autoHook'}->{$h} = $defaultHooks->{$h};
+		}
+	}
 
-    $conf{'siteName'}       =~ tr/"'//d;
-    $conf{'signinPath'}     =~ tr/"'//d;
-    $conf{'signoutPath'}    =~ tr/"'//d;
-    $conf{'signinId'}       =~ tr/"'#//d;
-    $conf{'signoutId'}      =~ tr/"'#//d;
+	$conf{'siteName'} =~ tr/"'//d;
+	$conf{'signinPath'} =~ tr/"'//d;
+	$conf{'signoutPath'} =~ tr/"'//d;
+	$conf{'signinId'} =~ tr/"'#//d;
+	$conf{'signoutId'} =~ tr/"'#//d;
 
-    die "Missing required configuration parameter: 'audience'!" unless $conf{'audience'};
-    die "Missing required configuration parameter: 'siteName'!" unless $conf{'siteName'};
+	die "Missing required configuration parameter: 'audience'!" unless $conf{'audience'};
+	die "Missing required configuration parameter: 'siteName'!" unless $conf{'siteName'};
 
-    # Append "templates" and "public" directories
-    my $base = catdir( dirname(__FILE__), 'MozPersona' );
-    push @{ $app->renderer->paths }, catdir( $base, 'templates' );
-    push @{ $app->static->paths },   catdir( $base, 'public' );
+	# Append "templates" and "public" directories
+	my $base = catdir( dirname(__FILE__), 'MozPersona' );
+	push @{ $app->renderer->paths }, catdir( $base, 'templates' );
+	push @{ $app->static->paths },   catdir( $base, 'public' );
 
-    push @{ $app->renderer->classes }, __PACKAGE__;
-    push @{ $app->static->classes },   __PACKAGE__;
+	push @{ $app->renderer->classes }, __PACKAGE__;
+	push @{ $app->static->classes },   __PACKAGE__;
 
-    $app->routes->route( $conf{signinPath} )->via('POST')->to(
-        namespace         => $conf{namespace},
-        action            => 'signin',
-        _persona_audience => $conf{audience},
-        _persona_service  => $conf{service},
-    );
-    $app->routes->route( $conf{signoutPath} )->via('POST')->to(
-        namespace         => $conf{namespace},
-        action            => 'signout',
-        _persona_audience => $conf{audience},
-        _persona_service  => $conf{service},
-    );
-    $app->routes->route( $conf{localJsPath} )->via('GET')->to(
-        namespace     => $conf{namespace},
-        action        => 'js',
-        _persona_conf => \%conf,
-    );    
+	$app->routes->route( $conf{signinPath} )->via('POST')->to(
+		namespace         => $conf{namespace},
+		action            => 'signin',
+		_persona_audience => $conf{audience},
+		_persona_service  => $conf{service},
+	);
+	$app->routes->route( $conf{signoutPath} )->via('POST')->to(
+		namespace         => $conf{namespace},
+		action            => 'signout',
+		_persona_audience => $conf{audience},
+		_persona_service  => $conf{service},
+	);
+	$app->routes->route( $conf{localJsPath} )->via('GET')
+		->to( namespace => $conf{namespace}, action => 'js', _persona_conf => \%conf, );
 
-    if ( $conf{'autoHook'} ) {
+	if ( $conf{'autoHook'} ) {
 
-        my $head_block = '';
-        if ( $conf{'autoHook'}->{'css'} ) {
-            $head_block .= '<link href="/_persona/persona-buttons.css" media="screen" rel="stylesheet" type="text/css" />';
-        }
-        if ( my $jq = $conf{'autoHook'}->{'jquery'} ) {
+		my $head_block = '';
+		if ( $conf{'autoHook'}->{'css'} ) {
+			$head_block
+				.= '<link href="/_persona/persona-buttons.css" media="screen" rel="stylesheet" type="text/css" />';
+		}
+		if ( my $jq = $conf{'autoHook'}->{'jquery'} ) {
 			if ( $jq eq 'cdn' ) {
-				$head_block .= '<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>';
+				$head_block
+					.= '<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>';
 			}
 			elsif ( $jq eq 'bundled' or $jq ) {
-	            $head_block .= '<script src="/mojo/jquery/jquery.js" type="text/javascript"></script>';
+				$head_block
+					.= '<script src="/mojo/jquery/jquery.js" type="text/javascript"></script>';
 			}
-        }
+		}
 
-        my $end_block = '';
-        if ( $conf{'autoHook'}->{'persona'} ) {
-            $end_block .= qq|<script type="text/javascript" src="$conf{'personaJsPath'}"></script>|;
-        }
-        if ( $conf{'autoHook'}->{'local'} ) {
-            $end_block .= qq|<script type="text/javascript" src="$conf{'localJsPath'}"></script>|;
-        }
+		my $end_block = '';
+		if ( $conf{'autoHook'}->{'persona'} ) {
+			$end_block .= qq|<script type="text/javascript" src="$conf{'personaJsPath'}"></script>|;
+		}
+		if ( $conf{'autoHook'}->{'local'} ) {
+			$end_block .= qq|<script type="text/javascript" src="$conf{'localJsPath'}"></script>|;
+		}
 
-        $app->hook(
-            after_dispatch => sub {
-                my ($c) = @_;
-                return unless index( $c->res->headers->content_type, 'html' ) >= 0;
+		$app->hook(
+			after_dispatch => sub {
+				my ($c) = @_;
+				return unless index( $c->res->headers->content_type, 'html' ) >= 0;
 
-                my $body = $c->res->body;
+				my $body = $c->res->body;
 
-                if ( $conf{'autoHook'}->{'uid'} ) {
-                    if ( defined( $c->session('_persona') )
-                        && $c->session('_persona')->{'status'} eq 'okay' 
-                    )
-                    {
-                        my $email = $c->session('_persona')->{'email'};
-                        $body
-                            =~ s!<head>!<head><script type="text/javascript">var personaCurrentUser = "$email";</script>$head_block!o;
-                    }
-                    else {
-                        $body
-                            =~ s!<head>!<head><script type="text/javascript">var personaCurrentUser = null;</script>$head_block!o;
-                    }
-                }
-                elsif ($head_block) {
-                    $body =~ s!<head>!<head>$head_block!o;
-                }    
+				if ( $conf{'autoHook'}->{'uid'} ) {
+					if ( defined( $c->session('_persona') )
+						&& $c->session('_persona')->{'status'} eq 'okay' )
+					{
+						my $email = $c->session('_persona')->{'email'};
+						$body
+							=~ s!<head>!<head><script type="text/javascript">var personaCurrentUser = "$email";</script>$head_block!o;
+					}
+					else {
+						$body
+							=~ s!<head>!<head><script type="text/javascript">var personaCurrentUser = null;</script>$head_block!o;
+					}
+				}
+				elsif ($head_block) {
+					$body =~ s!<head>!<head>$head_block!o;
+				}
 
-                if ($end_block) {
-                    $body =~ s!</body>!$end_block</body>!o;
-                }
-                $c->res->body($body);
-            }
-        );
-    } ## end if ( $conf{'autoHook'})
+				if ($end_block) {
+					$body =~ s!</body>!$end_block</body>!o;
+				}
+				$c->res->body($body);
+			}
+		);
+	} ## end if ( $conf{'autoHook'})
 
-    return;
+	return;
 } ## end sub register
 
 =head1 HELPERS
