@@ -7,7 +7,7 @@ package Mojolicious::Plugin::MozPersona::Controller;
 
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON;
+use Mojo::JSON qw(decode_json);
 
 use Mozilla::CA qw();
 use Data::Dumper;
@@ -112,8 +112,6 @@ L<https://developer.mozilla.org/en-US/docs/Persona/Remote_Verification_API>.
 sub signin {
     my $self = shift;
 
-    my $json = Mojo::JSON->new();
-
     $ENV{'MOJO_CA_FILE'} = Mozilla::CA::SSL_ca_file();
 
     my $persona_response = '';
@@ -128,7 +126,7 @@ sub signin {
            }
         )->res;
 
-        $result = $json->decode( $persona_response->body );
+        $result = decode_json $persona_response->body;
     };
 
     if ($@) {
